@@ -1,0 +1,132 @@
+﻿import tensorflow as tf
+import numpy as np
+import pandas as pd
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras import layers, models, optimizers, TextVectorization
+import matplotlib.pyplot as plt
+vocab_size = 1000
+embedding_dim = 100
+max_length = 120
+trunc_type='post'
+padding_type='post'
+oov_tok = "<OOV>"
+training_portion = .8
+data = pd.read_csv('data.csv')
+sentences = data['text'].str.lower().tolist()
+labels = data['label'].tolist()
+stopword = [
+    "yang", "dan", "di", "ke", "dari", "untuk", "dengan", "pada", "adalah",
+    "ini", "itu", "saya", "kita", "anda", "akan", "telah", "sebagai", "atau",
+    "jadi", "karena", "tidak", "dalam", "lebih", "lagi", "hanya", "sudah", "juga"
+]
+
+
+processed_sentences = []
+for sentence in sentences:
+    for word in stopword:
+        sentence = sentence.replace(f" {word} ", " ")  # Remove stopwords
+    processed_sentences.append(sentence.strip())
+train_size = int(len(processed_sentences) * 0.8)
+
+train_sentences = processed_sentences[:train_size]
+train_labels = labels[:train_size]
+
+validation_sentences =processed_sentences[train_size:]
+validation_labels = labels[train_size:]
+tokenizer = Tokenizer(num_words = vocab_size, oov_token=oov_tok)
+tokenizer.fit_on_texts(train_sentences)
+word_index = tokenizer.word_index
+
+train_sequences = tokenizer.texts_to_sequences(train_sentences)
+train_padded = pad_sequences(train_sequences, padding=padding_type, maxlen=max_length)
+
+validation_sequences = tokenizer.texts_to_sequences(validation_sentences)
+validation_padded = pad_sequences(validation_sequences, padding=padding_type, maxlen=max_length)
+training_label_seq = np.array(train_labels)
+validation_label_seq = np.array(validation_labels)
+model = models.Sequential([
+    layers.Embedding(vocab_size, embedding_dim),
+    layers.Bidirectional(tf.keras.layers.LSTM(128, return_sequences=True)),
+    layers.Bidirectional(tf.keras.layers.LSTM(64)),
+    layers.Dense(64, activation='relu'),
+    layers.Dense(32, activation='relu'),
+    layers.Dropout(0,5),
+    layers.Dense(8, activation='softmax')
+    ])
+model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+                optimizer=optimizers.Adam(),
+                metrics=['accuracy'])
+history = model.fit(train_padded, training_label_seq,
+                    epochs=10,
+                    validation_data=(validation_padded, validation_label_seq))
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+# Mapping label numerik ke nama emosi
+emotion_labels = {
+    0: "waspada",
+    1: "marah",
+    2: "jijik",
+    3: "takut",
+    4: "senang",
+    5: "sedih",
+    6: "terkejut",
+    7: "percaya"
+}
+
+while True:
+    user_input = input("input: ").lower()
+    if user_input == "exit":
+        print("Program selesai.")
+        break
+
+    # Hilangkan stopword pada input
+    for word in stopword:
+        user_input = user_input.replace(f" {word} ", " ")
+    
+    # Preprocessing input
+    user_input_sequence = tokenizer.texts_to_sequences([user_input])
+    user_input_padded = pad_sequences(user_input_sequence, padding=padding_type, maxlen=max_length)
+
+    # Prediksi emosi menggunakan model
+    prediction = model.predict(user_input_padded)
+    predicted_label = np.argmax(prediction)
+    confidence = np.max(prediction) * 100
+
+    # Ambil nama emosi berdasarkan prediksi
+    emotion = emotion_labels.get(predicted_label, "Tidak diketahui")
+    print("Input : ", user_input)
+    print(f"Prediksi emosi: {emotion} (Confidence: {confidence:.2f}%)")
+
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+import seaborn as sns
+
+# Buat prediksi pada data validasi
+predictions = model.predict(validation_padded)
+predicted_classes = np.argmax(predictions, axis=1)
+
+# Confusion Matrix
+conf_matrix = confusion_matrix(validation_label_seq, predicted_classes)
+
+# Plot confusion matrix
+plt.figure(figsize=(8, 6))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=set(labels), yticklabels=set(labels))
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted Labels")
+plt.ylabel("True Labels")
+plt.show()
+
+# Classification report
+print("Classification Report:\n")
+print(classification_report(validation_label_seq, predicted_classes))
+
+# Accuracy
+accuracy = accuracy_score(validation_label_seq, predicted_classes)
+print(f"Accuracy: {accuracy * 100:.2f}%")
+
+
+

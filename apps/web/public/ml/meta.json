@@ -1,0 +1,27 @@
+{
+  "emotions": [
+    "Waspada",
+    "Marah",
+    "Jijik",
+    "Takut",
+    "Senang",
+    "Sedih",
+    "Terkejut",
+    "Percaya"
+  ],
+  "input_shape": [
+    32,
+    11
+  ],
+  "maxlen": 11,
+  "maxlen_policy": "fixed",
+  "top_k": 2,
+  "uncertain_threshold": 0.4,
+  "pipeline": [
+    "strip_punctuation",
+    "lowercase",
+    "remove_stopwords_id",
+    "texts_to_sequences",
+    "pad_sequences_post"
+  ]
+}

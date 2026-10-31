@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+/* ============================================================
+   CurhatKu — "Sungai waktu"
+   Curhat = alur yang mengalir; tiap hari punya warna emosinya,
+   disambung garis bergradasi. Malam ungu, aksen lavender.
+   ============================================================ */
+
+:root {
+  /* Terang: kertas lavender, tinta malam */
+  --ck-bg: #f5f4fb;
+  --ck-surface: #ffffff;
+  --ck-surface-strong: #eceafa;
+  --ck-ink: #14122b;
+  --ck-ink-muted: #5a5780; /* 6.6:1 di atas bg */
+  --ck-line: #dedbf2;
+  --ck-invert: #4b3fd9; /* aksen utama: tombol, tab aktif */
+  --ck-on-invert: #ffffff;
+  --ck-on-invert-muted: #d9d5ff;
+  --ck-nav: #ffffff;
+  --ck-nav-ink: #5a5780;
+
+  /* Warna emosi — selalu di bawah teks gelap #14122B */
+  --ck-mood-senang: #ffd97d;
+  --ck-mood-percaya: #a5dcb5;
+  --ck-mood-sedih: #9bb8e8;
+  --ck-mood-marah: #ff9b9b;
+  --ck-mood-takut: #c9b4e8;
+  --ck-mood-jijik: #c5d8a0;
+  --ck-mood-terkejut: #ffb3c8;
+  --ck-mood-waspada: #ffc79b;
+  --ck-mood-none: #d9d6ee;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Gelap (identitas utama): malam ungu, aksen lavender */
+    --ck-bg: #14122b;
+    --ck-surface: #221f44;
+    --ck-surface-strong: #2d2957;
+    --ck-ink: #eceafb;
+    --ck-ink-muted: #a5a1c9; /* 7.3:1 di atas bg */
+    --ck-line: #34305e;
+    --ck-invert: #b8b2ff;
+    --ck-on-invert: #14122b;
+    --ck-on-invert-muted: #3b3766;
+    --ck-nav: #221f44;
+    --ck-nav-ink: #a5a1c9;
+    --ck-mood-none: #3a3669;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--ck-bg);
+  --color-bg-base: var(--ck-bg);
+  --color-surface: var(--ck-surface);
+  --color-surface-soft: var(--ck-surface);
+  --color-surface-strong: var(--ck-surface-strong);
+  --color-ink: var(--ck-ink);
+  --color-ink-muted: var(--ck-ink-muted);
+  --color-line: var(--ck-line);
+  --color-invert: var(--ck-invert);
+  --color-on-invert: var(--ck-on-invert);
+  --color-on-invert-muted: var(--ck-on-invert-muted);
+  --color-primary: var(--ck-invert);
+  --color-nav: var(--ck-nav);
+  --color-nav-ink: var(--ck-nav-ink);
+  --color-night: #14122b; /* teks di atas warna emosi, tetap di kedua tema */
+  --color-night-ink: #eceafb;
+
+  --color-mood-senang: var(--ck-mood-senang);
+  --color-mood-percaya: var(--ck-mood-percaya);
+  --color-mood-sedih: var(--ck-mood-sedih);
+  --color-mood-marah: var(--ck-mood-marah);
+  --color-mood-takut: var(--ck-mood-takut);
+  --color-mood-jijik: var(--ck-mood-jijik);
+  --color-mood-terkejut: var(--ck-mood-terkejut);
+  --color-mood-waspada: var(--ck-mood-waspada);
+  --color-mood-none: var(--ck-mood-none);
+
+  /* Radius berjenjang sesuai hierarki: chip < tombol < panel < nav */
+  --radius-clay-sm: 10px;
+  --radius-clay-md: 16px;
+  --radius-clay-lg: 26px;
+  --radius-clay-xl: 32px;
+
+  --text-label: 0.75rem;
+  --text-caption: 0.8125rem;
+  --text-body: 1rem;
+  --text-h3: 1.125rem;
+  --text-h2: 1.5rem;
+  --text-h1: 1.875rem;
+  --text-display: 2.5rem;
+
+  --container-clay: 480px;
+
+  --font-sans: var(--font-schibsted);
+}
+
+body {
+  background: var(--ck-bg);
+  color: var(--ck-ink);
+  font-family: var(--font-schibsted), system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1, h2, h3 {
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+::selection {
+  background: var(--ck-mood-senang);
+  color: #14122b;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ck-ink);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

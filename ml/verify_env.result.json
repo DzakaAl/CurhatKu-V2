@@ -1,0 +1,6 @@
+{
+  "tf": "2.21.0",
+  "converter_cli_exit": 0,
+  "converter_cli_tail": "ults due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1789225854.260478   32568 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.\nWARNING:tensorflow:From D:\\Project\\CurhatKu V2\\ml\\.venv\\Lib\\site-packages\\tf_keras\\src\\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.\n\n<frozen runpy>:128: RuntimeWarning: 'tensorflowjs.converters.converter' found in sys.modules after import of package 'tensorflowjs.converters', but prior to execution of 'tensorflowjs.converters.converter'; this may result in unpredictable behaviour\nWARNING:tensorflow:From D:\\Project\\CurhatKu V2\\ml\\.venv\\Lib\\site-packages\\tensorflowjs\\converters\\converter.py:967: The name tf.app.run is deprecated. Please use tf.compat.v1.app.run instead.\n\n",
+  "ok": true
+}
