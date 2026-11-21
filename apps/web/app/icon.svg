@@ -1,6 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="16" fill="#1f5c54"/>
-  <!-- Daun yang sekaligus gelembung cerita: tempat berteduh untuk curhat -->
-  <path d="M17 44c0-15 10-26 30-27 0 19-10 29-25 29h-6l-5 5v-7z" fill="#f7f3ec"/>
-  <path d="M23 41c5-6 11-11 19-16" fill="none" stroke="#1f5c54" stroke-width="3" stroke-linecap="round"/>
+  <rect width="64" height="64" rx="16" fill="#3155d4"/>
+  <!-- Gelembung curhat dengan tiga titik warna emosi (sedang mengetik) -->
+  <path d="M32 13c-11.6 0-21 8.4-21 18.8 0 5 2.1 9.5 5.6 12.9l-2.1 8.6 9.8-4c2.4.6 4.9 1 7.7 1 11.6 0 21-8.4 21-18.5S43.6 13 32 13z" fill="#ffffff"/>
+  <circle cx="23.3" cy="31.8" r="3.9" fill="#f3c955"/>
+  <circle cx="32" cy="31.8" r="3.9" fill="#f39ab6"/>
+  <circle cx="40.7" cy="31.8" r="3.9" fill="#7cc79a"/>
 </svg>

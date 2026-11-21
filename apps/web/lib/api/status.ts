@@ -1,12 +1,12 @@
 import type { BookingStatus } from "./types";
 
-/** Warna status booking — dipinjam dari palet emosi, teks selalu hitam. */
+/** Warna status booking — semantik: kuning menunggu, biru beres, merah ditolak. */
 export const STATUS_STYLE: Record<BookingStatus, string> = {
-  pending_payment: "bg-mood-waspada text-black",
-  awaiting_verification: "bg-mood-sedih text-black",
-  confirmed: "bg-mood-percaya text-black",
-  rejected: "bg-mood-marah text-black",
-  cancelled: "bg-surface-strong text-ink",
+  pending_payment: "bg-warn-soft text-warn",
+  awaiting_verification: "bg-warn-soft text-warn",
+  confirmed: "bg-accent-soft text-invert",
+  rejected: "bg-danger-soft text-danger",
+  cancelled: "bg-surface-strong text-ink-muted",
 };
 
 

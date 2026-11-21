@@ -37,7 +37,7 @@ export function useLogout() {
     onSettled: () => {
       qc.clear();
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- reload penuh agar cache sesi lama bersih
-      window.location.assign("/masuk");
+      window.location.assign("/");
     },
   });
 }

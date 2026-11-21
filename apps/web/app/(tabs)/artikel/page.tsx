@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import Cover from "@/components/curhat/Cover";
 import EmptyState from "@/components/curhat/EmptyState";
 import { ErrorBox, PageHeader, Skeleton } from "@/components/ui/States";
 import { useArticles } from "@/lib/api/hooks";
 
-/** Artikel edukatif — yang belum dibaca ditandai titik. */
+/** Artikel edukatif dalam grid bersampul; yang belum dibaca ditandai "Baru". */
 export default function ArtikelPage() {
   const articles = useArticles();
 
@@ -19,22 +20,23 @@ export default function ArtikelPage() {
       ) : articles.data.length === 0 ? (
         <EmptyState title="Belum ada artikel" body="Artikel pertama sedang ditulis. Cek lagi nanti." />
       ) : (
-        <ol className="flex flex-col divide-y divide-line border-y border-line">
+        <ul className="grid gap-x-8 md:grid-cols-2">
           {articles.data.map((a) => (
-            <li key={a.id}>
-              <Link href={`/artikel/${a.slug}`} className="group flex flex-col gap-1.5 py-5">
-                <span className="flex items-center gap-2 text-caption text-ink-muted">
-                  {!a.read ? <span className="h-2 w-2 rounded-full bg-invert" aria-hidden="true" /> : null}
-                  {a.read ? "Sudah dibaca" : "Belum dibaca"} · {a.readMinutes} menit
+            <li key={a.id} className="border-t border-line">
+              <Link href={`/artikel/${a.slug}`} className="group flex h-full flex-col gap-2.5 py-5">
+                <Cover seed={a.slug} />
+                <span className="flex items-center gap-2 text-[12px] text-ink-muted">
+                  <span className={"rounded-full px-2.5 py-0.5 font-semibold " + (a.read ? "bg-surface-strong" : "bg-accent-soft text-invert")}>
+                    {a.read ? "Sudah dibaca" : "Baru"}
+                  </span>
+                  {a.readMinutes} menit baca
                 </span>
-                <span className="text-h2 font-semibold leading-tight group-hover:underline group-hover:underline-offset-4">
-                  {a.title}
-                </span>
-                <span className="text-caption text-ink-muted">{a.excerpt}</span>
+                <span className="text-[17px] font-semibold tracking-[-0.02em] group-hover:text-invert">{a.title}</span>
+                <span className="text-ink-muted">{a.excerpt}</span>
               </Link>
             </li>
           ))}
-        </ol>
+        </ul>
       )}
     </main>
   );

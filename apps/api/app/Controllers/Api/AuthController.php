@@ -29,12 +29,12 @@ class AuthController extends ApiController
     }
 
     /** Dev: tautan dicatat di log & dikembalikan agar alur bisa dites tanpa SMTP. */
-    private function deliver(string $email, string $subject, string $url): ?string
+    private function deliver(string $email, string $subject, string $url, ?string $message = null): ?string
     {
         log_message('info', "[mail] {$email} — {$subject}: {$url}");
         $mail = service('email');
         if (config('Email')->SMTPHost) {
-            $mail->setTo($email)->setSubject($subject)->setMessage("Buka tautan ini: {$url}")->send();
+            $mail->setTo($email)->setSubject($subject)->setMessage($message ?? "Buka tautan ini: {$url}")->send();
         }
 
         return ENVIRONMENT === 'development' ? $url : null;
@@ -50,7 +50,7 @@ class AuthController extends ApiController
         if ($data instanceof ResponseInterface) {
             return $data;
         }
-        $token = bin2hex(random_bytes(16));
+        $token = self::newCode();
         $this->db()->table('users')->insert([
             'email'         => strtolower(trim($data['email'])),
             'password_hash' => password_hash($data['password'], PASSWORD_DEFAULT),
@@ -62,11 +62,49 @@ class AuthController extends ApiController
             'updated_at'    => $this->now(),
         ]);
         $user = $this->db()->table('users')->where('id', $this->db()->insertID())->get()->getRowArray();
-        $dev  = $this->deliver($user['email'], 'Verifikasi email CurhatKu', env('frontend.url') . "/verifikasi?token={$token}");
+        $dev  = $this->sendCode($user['email'], $token);
         $this->setSession($user);
 
-        return $this->response->setStatusCode(201)
-            ->setJSON(['data' => Auth::publicUser($user), 'devVerifyUrl' => $dev]);
+        return $this->response->setStatusCode(201)->setJSON([
+            'data'          => Auth::publicUser($user),
+            'devVerifyUrl'  => $dev,
+            'devVerifyCode' => $dev !== null ? $token : null,
+        ]);
+    }
+
+    /** Kode verifikasi 6 digit (disimpan di verify_token, dihapus setelah dipakai). */
+    private static function newCode(): string
+    {
+        return sprintf('%06d', random_int(0, 999999));
+    }
+
+    private function sendCode(string $email, string $code): ?string
+    {
+        $url = env('frontend.url') . '/verifikasi?email=' . rawurlencode($email) . "&token={$code}";
+
+        return $this->deliver(
+            $email,
+            'Kode verifikasi CurhatKu',
+            $url,
+            "Kode verifikasi CurhatKu kamu: {$code}\n\nAtau buka tautan ini: {$url}"
+        );
+    }
+
+    /** Kirim ulang kode verifikasi ke pengguna yang sedang masuk. */
+    public function resendVerify()
+    {
+        $user = $this->db()->table('users')->where('id', $this->uid())->get()->getRowArray();
+        if ($user['email_verified_at'] !== null) {
+            return $this->fail('Email sudah terverifikasi.', 400);
+        }
+        if (! service('throttler')->check(md5('resend-' . $user['id']), 3, MINUTE * 10)) {
+            return $this->fail('Terlalu sering. Coba lagi beberapa menit lagi.', 429);
+        }
+        $code = self::newCode();
+        $this->db()->table('users')->where('id', $user['id'])->update(['verify_token' => $code]);
+        $dev = $this->sendCode($user['email'], $code);
+
+        return $this->response->setJSON(['data' => true, 'devVerifyCode' => $dev !== null ? $code : null]);
     }
 
     public function login()
@@ -135,10 +173,22 @@ class AuthController extends ApiController
 
     public function verify()
     {
-        $token = (string) ($this->body()['token'] ?? '');
-        $user  = $token ? $this->db()->table('users')->where('verify_token', $token)->get()->getRowArray() : null;
+        $body  = $this->body();
+        $token = trim((string) ($body['code'] ?? $body['token'] ?? ''));
+        $email = strtolower(trim((string) ($body['email'] ?? '')));
+
+        if ($email !== '') {
+            // Kode 6 digit: dibatasi 5 percobaan / 10 menit per email agar tidak bisa ditebak.
+            if (! service('throttler')->check(md5('verify-' . $email), 5, MINUTE * 10)) {
+                return $this->fail('Terlalu banyak percobaan. Coba lagi beberapa menit lagi.', 429);
+            }
+            $user = $token !== '' ? $this->db()->table('users')->where('email', $email)->where('verify_token', $token)->get()->getRowArray() : null;
+        } else {
+            // Tautan lama (token 32 karakter) tetap berlaku.
+            $user = strlen($token) > 6 ? $this->db()->table('users')->where('verify_token', $token)->get()->getRowArray() : null;
+        }
         if (! $user) {
-            return $this->fail('Tautan verifikasi tidak valid atau sudah dipakai.', 400);
+            return $this->fail('Kode atau tautan verifikasi tidak valid atau sudah dipakai.', 400);
         }
         $this->db()->table('users')->where('id', $user['id'])
             ->update(['email_verified_at' => $this->now(), 'verify_token' => null]);

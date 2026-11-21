@@ -1,56 +1,68 @@
 @import "tailwindcss";
 
 /* ============================================================
-   CurhatKu — "Teduh"
-   Tempat berteduh untuk bercerita: kertas pasir yang hangat,
-   tinta hijau-hutan, aksen teal yang menenangkan.
-   Judul serif (Fraunces) memberi rasa personal, isi tetap
-   Plus Jakarta Sans agar mudah dibaca di layar kecil.
+   CurhatKu — palet "Senja"
+   Netral dingin berhias biru tua; warna emosi hanya untuk titik,
+   chip, dan sungai emosi. Geist untuk semua teks, Geist Mono
+   untuk angka dan waktu.
    ============================================================ */
 
 :root {
-  /* Terang: kertas pasir, tinta hutan */
-  --ck-bg: #f7f3ec;
-  --ck-surface: #fffdf9;
-  --ck-surface-strong: #efe7da;
-  --ck-ink: #1c2a26;
-  --ck-ink-muted: #56645e; /* ±5.7:1 di atas bg */
-  --ck-line: #e2d9ca;
-  --ck-invert: #1f5c54; /* aksen utama: tombol, tab aktif */
+  --ck-bg: #f7f8fb;
+  --ck-surface: #ffffff;
+  --ck-surface-strong: #eef0f6;
+  --ck-ink: #111629;
+  --ck-ink-soft: #2c3247;
+  --ck-ink-muted: #535a70;
+  --ck-line: rgba(20, 28, 56, 0.08);
+  --ck-line-strong: rgba(20, 28, 56, 0.15);
+  --ck-invert: #3155d4;
   --ck-on-invert: #ffffff;
-  --ck-on-invert-muted: #cfe6df;
-  --ck-nav: #fffdf9;
-  --ck-nav-ink: #56645e;
+  --ck-on-invert-muted: #dbe3ff;
+  --ck-accent-soft: rgba(49, 85, 212, 0.08);
+  --ck-nav: #ffffff;
+  --ck-nav-ink: #646b80;
+  --ck-danger: #b4363c;
+  --ck-danger-soft: rgba(180, 54, 60, 0.09);
+  --ck-warn: #9a5b00;
+  --ck-warn-soft: rgba(196, 128, 20, 0.12);
+  --ck-glow: 0.75;
 
-  /* Warna emosi — selalu di bawah teks gelap --color-night */
-  --ck-mood-senang: #ffd97d;
-  --ck-mood-percaya: #a5dcb5;
-  --ck-mood-sedih: #9bb8e8;
-  --ck-mood-marah: #ff9b9b;
-  --ck-mood-takut: #c9b4e8;
-  --ck-mood-jijik: #c5d8a0;
-  --ck-mood-terkejut: #ffb3c8;
-  --ck-mood-waspada: #ffc79b;
-  --ck-mood-none: #e4dccd;
+  --ck-mood-senang: #f3c955;
+  --ck-mood-percaya: #7cc79a;
+  --ck-mood-sedih: #7fa3e0;
+  --ck-mood-marah: #ef7b7b;
+  --ck-mood-takut: #b39be0;
+  --ck-mood-jijik: #a9c27a;
+  --ck-mood-terkejut: #f39ab6;
+  --ck-mood-waspada: #f4aa6d;
+  --ck-mood-none: #e3e6ef;
 
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Gelap: hutan malam, aksen mint */
-    --ck-bg: #111917;
-    --ck-surface: #1a2421;
-    --ck-surface-strong: #23302c;
-    --ck-ink: #edf0ea;
-    --ck-ink-muted: #a2b0a9; /* ±8:1 di atas bg */
-    --ck-line: #2b3935;
-    --ck-invert: #8fd3c2;
-    --ck-on-invert: #0f1a17;
-    --ck-on-invert-muted: #2e4a43;
-    --ck-nav: #1a2421;
-    --ck-nav-ink: #a2b0a9;
-    --ck-mood-none: #33413c;
+    --ck-bg: #0b0d16;
+    --ck-surface: #11141f;
+    --ck-surface-strong: #181c2a;
+    --ck-ink: #eef0f7;
+    --ck-ink-soft: #d2d6e4;
+    --ck-ink-muted: #a3a9bd;
+    --ck-line: rgba(255, 255, 255, 0.07);
+    --ck-line-strong: rgba(255, 255, 255, 0.14);
+    --ck-invert: #93adff;
+    --ck-on-invert: #0b0d16;
+    --ck-on-invert-muted: #2a3560;
+    --ck-accent-soft: rgba(147, 173, 255, 0.1);
+    --ck-nav: #11141f;
+    --ck-nav-ink: #8e94a9;
+    --ck-danger: #ff8a8f;
+    --ck-danger-soft: rgba(255, 138, 143, 0.1);
+    --ck-warn: #f0b65a;
+    --ck-warn-soft: rgba(240, 182, 90, 0.12);
+    --ck-glow: 0.28;
+    --ck-mood-none: #262b3b;
     color-scheme: dark;
   }
 }
@@ -63,6 +75,13 @@
   --color-surface-strong: var(--ck-surface-strong);
   --color-ink: var(--ck-ink);
   --color-ink-muted: var(--ck-ink-muted);
+  --color-ink-soft: var(--ck-ink-soft);
+  --color-line-strong: var(--ck-line-strong);
+  --color-accent-soft: var(--ck-accent-soft);
+  --color-danger: var(--ck-danger);
+  --color-danger-soft: var(--ck-danger-soft);
+  --color-warn: var(--ck-warn);
+  --color-warn-soft: var(--ck-warn-soft);
   --color-line: var(--ck-line);
   --color-invert: var(--ck-invert);
   --color-on-invert: var(--ck-on-invert);
@@ -70,8 +89,8 @@
   --color-primary: var(--ck-invert);
   --color-nav: var(--ck-nav);
   --color-nav-ink: var(--ck-nav-ink);
-  --color-night: #1c2a26; /* teks di atas warna emosi, tetap di kedua tema */
-  --color-night-ink: #edf0ea;
+  --color-night: #111629; /* teks di atas warna emosi, tetap di kedua tema */
+  --color-night-ink: #eef0f7;
 
   --color-mood-senang: var(--ck-mood-senang);
   --color-mood-percaya: var(--ck-mood-percaya);
@@ -86,8 +105,8 @@
   /* Radius berjenjang sesuai hierarki: chip < tombol < panel < nav */
   --radius-clay-sm: 10px;
   --radius-clay-md: 16px;
-  --radius-clay-lg: 26px;
-  --radius-clay-xl: 32px;
+  --radius-clay-lg: 22px;
+  --radius-clay-xl: 28px;
 
   --text-label: 0.75rem;
   --text-caption: 0.8125rem;
@@ -98,38 +117,39 @@
   --text-display: 2.5rem;
 
   --container-clay: 480px;
+  --container-land: 1200px;
 
-  --font-sans: var(--font-jakarta);
-  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-geist);
+  --font-display: var(--font-geist);
+  --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--ck-bg);
   color: var(--ck-ink);
-  font-family: var(--font-jakarta), system-ui, -apple-system, "Segoe UI", sans-serif;
-  line-height: 1.5;
+  font-family: var(--font-geist), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
-}
-
-h1, h2 {
-  font-family: var(--font-fraunces), Georgia, serif;
-  font-weight: 600;
-  font-variation-settings: "SOFT" 100, "opsz" 72;
 }
 
 h1, h2, h3 {
   line-height: 1.1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.035em;
+  font-weight: 650;
   text-wrap: balance;
 }
 
+.tabular { font-variant-numeric: tabular-nums; }
+
 ::selection {
   background: var(--ck-mood-senang);
-  color: #1c2a26;
+  color: #111629;
 }
 
 :focus-visible {
-  outline: 2px solid var(--ck-ink);
+  outline: 2px solid var(--ck-invert);
   outline-offset: 3px;
 }
 
@@ -139,4 +159,22 @@ h1, h2, h3 {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Pendar lembut warna emosi (sapaan beranda, promo) */
+.glow { position: relative; isolation: isolate; overflow: hidden; }
+.glow::before {
+  content: ""; position: absolute; inset: -30%; z-index: -1; pointer-events: none;
+  opacity: var(--ck-glow); filter: blur(40px);
+  background:
+    radial-gradient(closest-side at 18% 30%, var(--ck-mood-sedih), transparent),
+    radial-gradient(closest-side at 78% 18%, var(--ck-mood-terkejut), transparent 80%),
+    radial-gradient(closest-side at 62% 95%, var(--ck-mood-takut), transparent 80%);
+}
+
+@keyframes ck-up { from { opacity: 0; transform: translateY(0.25em); } to { opacity: 1; transform: none; } }
+.ck-up { animation: ck-up 0.5s ease; }
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
 }

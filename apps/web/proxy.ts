@@ -16,14 +16,14 @@ export default function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const hasSession = request.cookies.has("ck_rt");
 
-  if (!hasSession && !match(pathname, PUBLIC)) {
+  if (!hasSession && pathname !== "/" && !match(pathname, PUBLIC)) {
     const url = request.nextUrl.clone();
     url.pathname = "/masuk";
-    url.search = pathname === "/" ? "" : `?lanjut=${encodeURIComponent(pathname + search)}`;
+    url.search = `?lanjut=${encodeURIComponent(pathname + search)}`;
     return NextResponse.redirect(url);
   }
 
-  if (hasSession && match(pathname, GUEST_ONLY)) {
+  if (hasSession && (pathname === "/" || match(pathname, GUEST_ONLY))) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     url.search = "";

@@ -10,13 +10,15 @@ function ResetForm() {
   return (
     <AuthForm
       title="Kata sandi baru"
-      intro="Setelah disimpan, semua sesi lain akan keluar otomatis."
+      intro="Buat kata sandi yang belum pernah kamu pakai. Setelah disimpan, semua sesi lain akan keluar otomatis."
       endpoint="/auth/reset"
-      submitLabel="Simpan kata sandi"
+      submitLabel="Simpan dan masuk"
       extra={{ token }}
       fields={[
-        { name: "password", label: "Kata sandi baru", type: "password", autoComplete: "new-password", hint: "Minimal 8 karakter." },
+        { name: "password", label: "Kata sandi baru", type: "password", autoComplete: "new-password", placeholder: "Minimal 8 karakter" },
+        { name: "password2", label: "Ulangi kata sandi", type: "password", autoComplete: "new-password", local: true },
       ]}
+      validate={(v) => (v.password !== v.password2 ? { password2: "Kata sandi tidak sama." } : null)}
       onDone={() => router.replace("/masuk")}
     />
   );

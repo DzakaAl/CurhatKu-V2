@@ -3,7 +3,8 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import { EMOTION_HEX, type Emotion } from "@/lib/ml/emotions";
+import { EMOTION_BG, EMOTION_HEX, type Emotion } from "@/lib/ml/emotions";
+import { Icon } from "@/components/nav/icons";
 import { predictEmotion } from "@/lib/ml/model";
 import { useSaveJournal } from "@/lib/api/hooks";
 import { ApiError } from "@/lib/api/client";
@@ -21,6 +22,7 @@ type Detect =
       emotion2: Emotion;
       confidence2: number;
       uncertain: boolean;
+      dist: [Emotion, number][];
     }
   | { kind: "error" };
 
@@ -51,6 +53,7 @@ export default function Composer({
   const [flash, setFlash] = useState("");
   const barRef = useRef<HTMLSpanElement>(null);
   const reqRef = useRef(0);
+  const [pick, setPick] = useState<Emotion | null>(null);
 
   useEffect(() => {
     const trimmed = text.trim();
@@ -61,7 +64,11 @@ export default function Composer({
       try {
         const r = await predictEmotion(trimmed);
         if (req !== reqRef.current) return;
+        const raw = Object.entries(r.fullDistribution) as [Emotion, number][];
+        const sum = raw.reduce((a, [, v]) => a + v, 0) || 1;
+        setPick(null);
         setDetect({
+          dist: raw.map(([e, v]) => [e, v / sum] as [Emotion, number]).sort((a, b) => b[1] - a[1]),
           kind: "result",
           emotion: r.top1,
           confidence: r.top1Confidence,
@@ -103,19 +110,22 @@ export default function Composer({
     const content = text.trim();
     if (!content || save.isPending) return;
     const r = detect.kind === "result" ? detect : null;
+    const chosen = r && !r.uncertain ? pick ?? r.emotion : null;
+    const chosenConf = r && chosen ? r.dist.find(([e]) => e === chosen)?.[1] ?? r.confidence : null;
     save.mutate(
       {
         id: journal?.id,
         content,
-        emotion: r && !r.uncertain ? r.emotion : null,
-        confidence: r && !r.uncertain ? r.confidence : null,
+        emotion: chosen,
+        confidence: chosenConf,
         emotion2: r && !r.uncertain ? r.emotion2 : null,
         confidence2: r && !r.uncertain ? r.confidence2 : null,
       },
       {
         onSuccess: () => {
           if (!journal) setText("");
-          setFlash(journal ? "Perubahan disimpan." : "Ditambahkan ke alurmu.");
+          setPick(null);
+          setFlash(journal ? "Perubahan disimpan." : "Tersimpan di jurnal.");
           setTimeout(() => setFlash(""), 3000);
           onDone?.();
         },
@@ -138,9 +148,12 @@ export default function Composer({
       case "result":
         return detect.uncertain
           ? "Emosi belum jelas — tulis sedikit lagi"
-          : `Terdeteksi: ${detect.emotion} · ${Math.round(detect.confidence * 100)}%`;
+          : "Emosi terbaca, pilih lain bila kurang pas";
     }
   })();
+
+  const res = detect.kind === "result" && !detect.uncertain ? detect : null;
+  const shown = res ? pick ?? res.emotion : null;
 
   return (
     <form
@@ -148,11 +161,17 @@ export default function Composer({
         e.preventDefault();
         submit();
       }}
-      className="flex flex-col gap-3 rounded-clay-lg border border-line bg-surface p-5"
+      className="flex flex-col rounded-clay-lg border border-line bg-surface shadow-[0_8px_24px_-12px_rgba(20,28,56,.12)]"
     >
-      <label htmlFor={id} className="text-h3 font-extrabold tracking-[-0.02em]">
-        {journal ? "Ubah curhat" : "Lanjutkan alurnya"}
-      </label>
+      <div className="flex items-center justify-between gap-3 px-5 pt-5">
+        <label htmlFor={id} className="text-[13px] font-semibold">
+          {journal ? "Ubah curhat" : "Tulis curhat"}
+        </label>
+        <span className="flex items-center gap-1.5 text-[12px] text-ink-muted">
+          <Icon name="lock" className="h-[13px] w-[13px]" />
+          Hanya kamu yang bisa membaca
+        </span>
+      </div>
       <textarea
         id={id}
         value={text}
@@ -161,23 +180,75 @@ export default function Composer({
         onKeyDown={(e) => {
           if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit();
         }}
-        placeholder="Hari ini, aku…"
+        placeholder="Apa yang sedang kamu rasakan? Ceritakan saja, tidak ada yang menilai."
         rows={5}
         maxLength={10000}
-        className="block min-h-32 w-full resize-none bg-transparent text-[17px] leading-[1.5] text-ink outline-none placeholder:text-ink-muted/80"
+        className="block min-h-32 w-full resize-none bg-transparent px-5 py-4 text-[16px] leading-[1.6] text-ink outline-none placeholder:text-ink-muted/70"
       />
-      <div className="flex items-center justify-between gap-3">
+      {res && shown ? (
+        <div className="grid gap-5 border-t border-line px-5 py-4 sm:grid-cols-2 sm:items-center">
+          <div>
+            <p className="text-[13px] font-semibold">Emosi yang terbaca</p>
+            <div className="mt-2 flex items-center gap-3">
+              <span aria-hidden="true" className={`h-[22px] w-[22px] rounded-full ${EMOTION_BG[shown]}`} />
+              <div>
+                <b className="text-[20px] font-semibold tracking-[-0.02em]">{shown}</b>
+                <p className="text-[12px] text-ink-muted">
+                  Keyakinan {Math.round((res.dist.find(([e]) => e === shown)?.[1] ?? 0) * 100)}% · diproses di perangkatmu
+                </p>
+              </div>
+            </div>
+            <p className="mt-2.5 text-[13px] text-ink-muted">Kurang pas? Pilih emosi lain sebelum menyimpan.</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {res.dist.slice(0, 4).map(([e]) => (
+                <button
+                  key={e}
+                  type="button"
+                  aria-pressed={shown === e}
+                  onClick={() => setPick(e)}
+                  className={
+                    "inline-flex min-h-8 items-center gap-2 rounded-full border px-3 text-[12.5px] font-medium " +
+                    (shown === e ? "border-ink bg-ink text-bg" : "border-line-strong hover:bg-surface-strong")
+                  }
+                >
+                  <span aria-hidden="true" className={`h-2 w-2 rounded-full ${EMOTION_BG[e]}`} />
+                  {e}
+                </button>
+              ))}
+            </div>
+          </div>
+          <ul className="flex flex-col gap-2">
+            {res.dist.slice(0, 5).map(([e, p]) => (
+              <li key={e} className="grid grid-cols-[76px_minmax(0,1fr)_40px] items-center gap-2.5 text-[12.5px]">
+                <span>{e}</span>
+                <span className="h-1.5 overflow-hidden rounded-full bg-surface-strong">
+                  <span className={`block h-full rounded-full ${EMOTION_BG[e]}`} style={{ width: `${Math.round(p * 100)}%` }} />
+                </span>
+                <span className="text-right font-mono text-ink-muted">{Math.round(p * 100)}%</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      <div className="flex items-center justify-between gap-3 border-t border-line px-5 py-3">
         <span aria-live="polite" className="flex min-w-0 items-center gap-2 text-caption text-ink-muted">
           <span ref={barRef} aria-hidden="true" className="h-3 w-3 shrink-0 rounded-full bg-mood-none" />
           {status}
         </span>
-        <button
-          type="submit"
-          disabled={!text.trim() || save.isPending}
-          className="min-h-12 shrink-0 rounded-full bg-invert px-6 text-[15px] font-extrabold text-on-invert transition-[transform,opacity] active:scale-[0.97] disabled:opacity-40"
-        >
-          {save.isPending ? "Menyimpan…" : journal ? "Simpan" : "Tambahkan"}
-        </button>
+        <span className="flex shrink-0 items-center gap-2">
+          {journal && onDone ? (
+            <button type="button" onClick={onDone} className="min-h-10 rounded-full px-4 text-[13.5px] font-semibold text-ink-muted hover:bg-surface-strong">
+              Batal
+            </button>
+          ) : null}
+          <button
+            type="submit"
+            disabled={!text.trim() || save.isPending}
+            className="inline-flex min-h-10 items-center gap-2 rounded-full bg-invert px-5 text-[13.5px] font-semibold text-on-invert transition-[transform,opacity,filter] hover:brightness-110 active:scale-[0.97] disabled:opacity-40"
+          >
+            {save.isPending ? "Menyimpan…" : journal ? "Simpan" : "Simpan curhat"}
+          </button>
+        </span>
       </div>
     </form>
   );

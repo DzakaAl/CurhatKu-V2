@@ -11,22 +11,26 @@ function MasukForm() {
 
   return (
     <AuthForm
-      title="Masuk"
-      intro="Lanjutkan curhatmu. Di forum kamu tetap tampil anonim."
+      title="Selamat datang lagi"
+      intro="Masuk untuk melanjutkan curhatmu. Di forum kamu tetap tampil dengan nama samaran."
       endpoint="/auth/login"
       submitLabel="Masuk"
       fields={[
-        { name: "email", label: "Email", type: "email", autoComplete: "email" },
-        { name: "password", label: "Kata sandi", type: "password", autoComplete: "current-password" },
+        { name: "email", label: "Email", type: "email", autoComplete: "email", placeholder: "nama@email.com" },
+        {
+          name: "password",
+          label: "Kata sandi",
+          type: "password",
+          autoComplete: "current-password",
+          placeholder: "Minimal 8 karakter",
+          labelRight: <TextLink href="/lupa">Lupa kata sandi?</TextLink>,
+        },
       ]}
       onDone={() => router.replace(target)}
       footer={
-        <div className="flex flex-col gap-3">
-          <span>
-            Belum punya akun? <TextLink href="/daftar">Daftar</TextLink>
-          </span>
-          <TextLink href="/lupa">Lupa kata sandi?</TextLink>
-        </div>
+        <span>
+          Belum punya akun? <TextLink href="/daftar">Daftar gratis</TextLink>
+        </span>
       }
     />
   );

@@ -85,7 +85,7 @@ function ActionButton({ children, onClick, strong }: { children: React.ReactNode
       onClick={onClick}
       className={
         "min-h-11 rounded-full px-3 transition-colors hover:bg-surface-strong hover:text-ink " +
-        (strong ? "font-extrabold text-ink" : "")
+        (strong ? "font-semibold text-ink" : "")
       }
     >
       {children}

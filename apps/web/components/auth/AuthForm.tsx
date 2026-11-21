@@ -13,6 +13,10 @@ type FieldDef = {
   type?: string;
   autoComplete?: string;
   hint?: string;
+  placeholder?: string;
+  labelRight?: ReactNode;
+  /** Hanya untuk validasi di klien, tidak dikirim ke API. */
+  local?: boolean;
 };
 
 /**
@@ -29,6 +33,7 @@ export default function AuthForm({
   footer,
   onDone,
   initial = {},
+  validate,
 }: {
   title: string;
   intro?: ReactNode;
@@ -39,6 +44,7 @@ export default function AuthForm({
   footer?: ReactNode;
   onDone: (body: Record<string, unknown>) => void;
   initial?: Record<string, string>;
+  validate?: (values: Record<string, string>) => Record<string, string> | null;
 }) {
   const qc = useQueryClient();
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -48,6 +54,13 @@ export default function AuthForm({
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const values = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
+    const localErr = validate?.(values);
+    if (localErr) {
+      setErrors(localErr);
+      setFormError("");
+      return;
+    }
+    fields.filter((f) => f.local).forEach((f) => delete values[f.name]);
     setPending(true);
     setErrors({});
     setFormError("");
@@ -71,9 +84,9 @@ export default function AuthForm({
   }
 
   return (
-    <main className="flex flex-col gap-8">
+    <main className="flex flex-col gap-7">
       <div className="flex flex-col gap-3">
-        <h1 className="text-h1 font-extrabold leading-[0.95]">{title}</h1>
+        <h1 className="text-[30px] font-semibold tracking-[-0.04em]">{title}</h1>
         {intro ? <p className="text-body text-ink-muted">{intro}</p> : null}
       </div>
       <form onSubmit={submit} noValidate className="flex flex-col gap-5">
@@ -85,28 +98,30 @@ export default function AuthForm({
             type={f.type ?? "text"}
             autoComplete={f.autoComplete}
             hint={f.hint}
+            placeholder={f.placeholder}
+            labelRight={f.labelRight}
             defaultValue={initial[f.name]}
             error={errors[f.name]}
             required
           />
         ))}
         {formError ? (
-          <p role="alert" className="rounded-clay-md bg-mood-marah px-4 py-3 text-caption font-medium text-night">
+          <p role="alert" className="rounded-[12px] bg-danger-soft px-4 py-3 text-caption font-medium text-danger">
             {formError}
           </p>
         ) : null}
-        <Button type="submit" size="lg" disabled={pending} className="mt-1 w-full">
+        <Button type="submit" size="lg" disabled={pending} className="mt-1 w-full min-h-12">
           {pending ? "Memproses…" : submitLabel}
         </Button>
       </form>
-      {footer ? <div className="text-caption text-ink-muted">{footer}</div> : null}
+      {footer ? <div className="text-center text-[13.5px] text-ink-muted">{footer}</div> : null}
     </main>
   );
 }
 
 export function TextLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link href={href} className="font-semibold text-ink underline underline-offset-4">
+    <Link href={href} className="font-semibold text-invert hover:underline hover:underline-offset-4">
       {children}
     </Link>
   );

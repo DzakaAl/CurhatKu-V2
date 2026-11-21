@@ -10,10 +10,11 @@ export default function MoodCheckin({ today }: { today: Emotion | null | undefin
 
   return (
     <fieldset className="flex flex-col gap-3">
-      <legend className="mb-3 text-caption font-medium text-ink-muted">
-        {current ? `Mood hari ini: ${current}. Ketuk untuk mengganti.` : "Satu kata untuk hari ini?"}
+      <legend className="mb-3 text-[13px] font-semibold">
+        Mood hari ini{" "}
+        <span className="font-normal text-ink-muted">{current ? `· ${current}, ketuk untuk mengganti` : "· satu kata cukup"}</span>
       </legend>
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {EMOTIONS.map((e) => {
           const on = current === e;
           return (
@@ -23,17 +24,18 @@ export default function MoodCheckin({ today }: { today: Emotion | null | undefin
               aria-pressed={on}
               onClick={() => checkin.mutate(e)}
               className={
-                "min-h-11 rounded-full px-4 text-caption font-semibold transition-[transform,background-color] active:scale-95 " +
-                (on ? `${EMOTION_BG[e]} text-night` : "bg-surface text-ink hover:bg-surface-strong")
+                "flex min-h-11 items-center gap-2.5 rounded-[12px] border px-3 text-left text-[13px] transition-[transform,background-color,border-color] active:scale-[0.98] " +
+                (on ? "border-ink bg-surface-strong font-semibold" : "border-line font-medium hover:bg-surface-strong/60")
               }
             >
+              <span aria-hidden="true" className={`h-3 w-3 shrink-0 rounded-full ${EMOTION_BG[e]}`} />
               {e}
             </button>
           );
         })}
       </div>
       {checkin.isError ? (
-        <p role="alert" className="text-caption font-medium text-[#b42318] dark:text-mood-marah">
+        <p role="alert" className="text-caption font-medium text-danger">
           Mood belum tersimpan. Coba ketuk lagi.
         </p>
       ) : null}

@@ -37,6 +37,14 @@ class ConsultController extends ApiController
         return $this->ok(array_map([$this, 'psyOut'], $this->db()->table('psychologists')->orderBy('id')->get()->getResultArray()));
     }
 
+    /** Publik (landing): jumlah psikolog & harga sesi termurah. */
+    public function publicSummary()
+    {
+        $row = $this->db()->table('psychologists')->select('COUNT(*) AS n, MIN(price) AS min_price')->get()->getRowArray();
+
+        return $this->ok(['count' => (int) $row['n'], 'minPrice' => $row['min_price'] !== null ? (int) $row['min_price'] : null]);
+    }
+
     public function psychologist(int $id)
     {
         $p = $this->db()->table('psychologists')->where('id', $id)->get()->getRowArray();

@@ -17,10 +17,12 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function (R
     $r->post('auth/verify', 'AuthController::verify');
     $r->post('auth/forgot', 'AuthController::forgot');
     $r->post('auth/reset', 'AuthController::reset');
+    $r->get('public/consult', 'ConsultController::publicSummary');
 
     $r->group('', ['filter' => 'auth'], static function (RouteCollection $r) {
         $r->get('me', 'AuthController::me');
         $r->put('me', 'AuthController::updateProfile');
+        $r->post('auth/resend-verify', 'AuthController::resendVerify');
 
         // M2/M3
         $r->get('dashboard', 'MoodController::summary');

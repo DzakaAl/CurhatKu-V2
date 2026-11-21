@@ -6,11 +6,12 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import PushToggle from "@/components/nav/PushToggle";
-import { ErrorBox, Skeleton } from "@/components/ui/States";
+import { Icon, type IconName } from "@/components/nav/icons";
+import { ErrorBox, PageHeader, SectionHead, Skeleton } from "@/components/ui/States";
 import { useLogout, useMe, useUpdateProfile } from "@/lib/api/hooks";
 import { ApiError } from "@/lib/api/client";
 
-/** Profil: identitas samaran, edit profil, pintasan, keluar. */
+/** Profil: identitas, nama samaran, pengingat, pintasan, keluar. */
 export default function ProfilPage() {
   const me = useMe();
   const update = useUpdateProfile();
@@ -31,79 +32,97 @@ export default function ProfilPage() {
     );
   }
 
-  const links = [
-    { href: "/konsultasi", title: "Konsultasi psikolog", body: "Sesi dan jadwalmu" },
-    { href: "/notifikasi", title: "Notifikasi", body: "Balasan forum & kabar sesi" },
-    ...(u.role === "admin" ? [{ href: "/admin", title: "Panel admin", body: "Verifikasi pembayaran, terbitkan artikel" }] : []),
+  const links: { href: string; icon: IconName; title: string; body: string }[] = [
+    { href: "/notifikasi", icon: "bell", title: "Notifikasi", body: "Balasan forum dan kabar sesi" },
+    { href: "/konsultasi", icon: "heart", title: "Sesi konsultasi", body: "Jadwal dan pembayaranmu" },
+    { href: "/journal", icon: "book", title: "Jurnal", body: "Semua curhat yang pernah kamu tulis" },
+    { href: "/peta", icon: "search", title: "Peta layar", body: "Semua halaman dan alur di CurhatKu" },
+    ...(u.role === "admin" ? [{ href: "/admin", icon: "shield" as IconName, title: "Panel admin", body: "Verifikasi pembayaran, terbitkan artikel" }] : []),
   ];
 
   return (
     <main className="flex flex-col gap-6">
-      <h1 className="text-h1 font-extrabold">Profil</h1>
-
-      <section className="flex items-center gap-4 rounded-clay-lg bg-invert p-5 text-on-invert">
-        <span
-          aria-hidden="true"
-          className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-mood-takut text-h3 font-extrabold text-night"
-        >
-          {u.anonHandle.charAt(0)}
-        </span>
-        <div className="min-w-0">
-          <h2 className="truncate text-h3 font-semibold tracking-[-0.02em]">{u.name}</h2>
-          <p className="text-caption text-on-invert-muted">Di forum kamu tampil sebagai {u.anonHandle}</p>
-        </div>
-      </section>
-
-      {!u.emailVerified ? (
-        <p className="rounded-clay-md bg-mood-waspada px-4 py-3 text-caption font-medium text-night">
-          Email {u.email} belum diverifikasi. Cek kotak masukmu untuk tautan verifikasi.
-        </p>
-      ) : null}
+      <PageHeader title="Profil" />
 
       {editing ? (
-        <form onSubmit={submit} className="flex flex-col gap-4">
+        <form onSubmit={submit} className="flex flex-col gap-4 border-t border-line pt-5">
           <Input name="name" label="Nama panggilan" defaultValue={u.name} required error={fields.name} />
           <Textarea name="bio" label="Bio (opsional)" defaultValue={u.bio ?? ""} rows={3} maxLength={500} error={fields.bio} />
           <Input name="avatarUrl" label="URL foto (opsional)" type="url" defaultValue={u.avatarUrl ?? ""} error={fields.avatarUrl} />
-          <div className="flex gap-2">
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="ghost" onClick={() => setEditing(false)}>
+              Batal
+            </Button>
             <Button type="submit" disabled={update.isPending}>
               {update.isPending ? "Menyimpan…" : "Simpan profil"}
-            </Button>
-            <Button type="button" variant="surface" onClick={() => setEditing(false)}>
-              Batal
             </Button>
           </div>
         </form>
       ) : (
-        <div className="flex flex-col gap-3">
-          {u.bio ? <p className="leading-relaxed">{u.bio}</p> : null}
-          <Button variant="surface" className="self-start" onClick={() => setEditing(true)}>
-            Ubah profil
-          </Button>
-        </div>
+        <section className="glow flex flex-col gap-5 rounded-clay-xl bg-surface p-6 shadow-[0_0_0_1px_var(--ck-line)]">
+          <div className="flex items-start gap-4">
+            <span aria-hidden="true" className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-surface-strong text-[20px] font-bold">
+              {u.name.charAt(0).toUpperCase()}
+            </span>
+            <div className="min-w-0 flex-1">
+              <h2 className="truncate text-[22px] font-semibold tracking-[-0.035em]">{u.name}</h2>
+              <p className="text-[13px] text-ink-muted">{u.email}</p>
+              {u.bio ? <p className="mt-2 text-ink-soft">{u.bio}</p> : null}
+            </div>
+            <Button variant="surface" className="min-h-9 px-3.5 text-[12.5px]" onClick={() => setEditing(true)}>
+              <Icon name="pen" className="h-4 w-4" />
+              Ubah
+            </Button>
+          </div>
+          <div className="flex items-center gap-3 border-t border-line pt-4">
+            <span className="grid h-9 w-9 place-items-center rounded-[12px] bg-accent-soft text-invert">
+              <Icon name="eye" />
+            </span>
+            <div className="min-w-0">
+              <b className="block text-[13.5px] font-semibold">Nama samaran di forum</b>
+              <span className="font-mono text-[12.5px] text-ink-muted">{u.anonHandle}</span>
+            </div>
+          </div>
+        </section>
       )}
 
-      <PushToggle />
+      {!u.emailVerified ? (
+        <p className="rounded-[12px] bg-warn-soft px-4 py-3 text-caption font-medium">
+          Email {u.email} belum diverifikasi. Cek kotak masukmu untuk tautan verifikasi.
+        </p>
+      ) : null}
 
-      <ul className="flex flex-col divide-y divide-line border-y border-line">
+      <section className="flex flex-col gap-4">
+        <SectionHead title="Pengingat" />
+        <PushToggle />
+      </section>
+
+      <ul className="border-y border-line">
         {links.map((l) => (
-          <li key={l.href}>
-            <Link href={l.href} className="flex items-center justify-between gap-4 py-4 hover:underline hover:underline-offset-4">
-              <span>
-                <span className="block font-semibold">{l.title}</span>
-                <span className="block text-caption text-ink-muted">{l.body}</span>
+          <li key={l.href} className="border-t border-line first:border-t-0">
+            <Link href={l.href} className="-mx-3 flex items-center gap-3 rounded-[14px] px-3 py-3.5 hover:bg-surface-strong/50">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[12px] bg-surface-strong text-ink-soft">
+                <Icon name={l.icon} />
               </span>
-              <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M9 6l6 6-6 6" />
-              </svg>
+              <span className="min-w-0 flex-1">
+                <span className="block font-semibold">{l.title}</span>
+                <span className="block text-[13px] text-ink-muted">{l.body}</span>
+              </span>
+              <Icon name="chev" className="h-[18px] w-[18px] text-ink-muted/60" />
             </Link>
           </li>
         ))}
       </ul>
 
-      <Button variant="ghost" className="self-start" onClick={() => logout.mutate()} disabled={logout.isPending}>
-        Keluar
-      </Button>
+      <button
+        type="button"
+        onClick={() => logout.mutate()}
+        disabled={logout.isPending}
+        className="inline-flex min-h-10 items-center gap-2 self-start rounded-full px-3 text-[14px] font-semibold text-danger hover:bg-danger-soft"
+      >
+        <Icon name="back" className="h-4 w-4" />
+        {logout.isPending ? "Keluar…" : "Keluar"}
+      </button>
     </main>
   );
 }

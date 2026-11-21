@@ -3,13 +3,14 @@ import { FieldError } from "./States";
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   label: string;
+  labelRight?: React.ReactNode;
   hint?: string;
   error?: string;
 };
 
 /** Input mono: label eksplisit, latar abu, fokus = garis tinta. Tap ≥ 44px. */
 const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, hint, error, className = "", id, ...props },
+  { label, labelRight, hint, error, className = "", id, ...props },
   ref
 ) {
   const autoId = useId();
@@ -19,17 +20,20 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={inputId} className="text-caption font-medium text-ink-muted">
-        {label}
-      </label>
+      <span className="flex items-center justify-between gap-3">
+        <label htmlFor={inputId} className="text-[12.5px] font-semibold text-ink-soft">
+          {label}
+        </label>
+        {labelRight}
+      </span>
       <input
         ref={ref}
         id={inputId}
         aria-invalid={error ? true : undefined}
         aria-describedby={[hintId, errId].filter(Boolean).join(" ") || undefined}
         className={
-          "min-h-12 rounded-clay-md bg-surface px-4 py-3 text-body text-ink " +
-          "placeholder:text-ink-muted/70 outline-none ring-ink transition-shadow focus-visible:ring-2 aria-[invalid]:ring-2 aria-[invalid]:ring-[#b42318] " +
+          "min-h-12 rounded-[12px] border border-line-strong bg-surface px-4 py-3 text-body text-ink " +
+          "placeholder:text-ink-muted/70 outline-none transition-shadow focus:border-invert focus:ring-[3px] focus:ring-accent-soft aria-[invalid]:border-danger " +
           className
         }
         {...props}

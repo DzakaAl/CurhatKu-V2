@@ -72,6 +72,29 @@ final class ApiFlowTest extends CIUnitTestCase
             ->assertJSONFragment(['data' => ['name' => 'Nama Baru']]);
     }
 
+    public function testPublicConsultSummary(): void
+    {
+        $res = $this->get('api/public/consult');
+        $res->assertOK();
+        $data = json_decode($res->getJSON(), true)['data'];
+        $this->assertArrayHasKey('count', $data);
+        $this->assertArrayHasKey('minPrice', $data);
+    }
+
+    public function testVerifyEmailWithCode(): void
+    {
+        $this->withBodyFormat('json')
+            ->post('api/auth/register', ['name' => 'Kode', 'email' => 'kode@x.id', 'password' => 'Rahasia123'])
+            ->assertStatus(201);
+        $code = db_connect()->table('users')->where('email', 'kode@x.id')->get()->getRow()->verify_token;
+        $this->assertMatchesRegularExpression('/^\d{6}$/', $code);
+
+        $wrong = $code === '000000' ? '111111' : '000000';
+        $this->withBodyFormat('json')->post('api/auth/verify', ['email' => 'kode@x.id', 'code' => $wrong])->assertStatus(400);
+        $this->withBodyFormat('json')->post('api/auth/verify', ['email' => 'kode@x.id', 'code' => $code])->assertOK();
+        $this->assertNotNull(db_connect()->table('users')->where('email', 'kode@x.id')->get()->getRow()->email_verified_at);
+    }
+
     public function testMoodJournalAndDashboard(): void
     {
         $this->withBodyFormat('json')
