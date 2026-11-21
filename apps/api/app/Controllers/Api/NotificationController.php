@@ -2,6 +2,9 @@
 
 namespace App\Controllers\Api;
 
+use App\Libraries\Push;
+use CodeIgniter\HTTP\ResponseInterface;
+
 /** M7+ Notifikasi in-app. */
 class NotificationController extends ApiController
 {
@@ -24,6 +27,42 @@ class NotificationController extends ApiController
     {
         $this->db()->table('notifications')->where('user_id', $this->uid())->where('read_at', null)
             ->update(['read_at' => $this->now()]);
+
+        return $this->ok(true);
+    }
+
+    /** Kunci publik VAPID untuk PushManager.subscribe(); null = push nonaktif. */
+    public function pushKey()
+    {
+        return $this->ok(['enabled' => Push::enabled(), 'publicKey' => Push::publicKey()]);
+    }
+
+    public function subscribe()
+    {
+        $data = $this->validated([
+            'endpoint'    => 'required|valid_url_strict[https]|max_length[500]',
+            'keys.p256dh' => 'required|max_length[255]',
+            'keys.auth'   => 'required|max_length[100]',
+        ]);
+        if ($data instanceof ResponseInterface) {
+            return $data;
+        }
+        $hash = hash('sha256', $data['endpoint']);
+        $t    = $this->db()->table('push_subscriptions');
+        $t->where('endpoint_hash', $hash)->delete();
+        $this->db()->table('push_subscriptions')->insert([
+            'user_id' => $this->uid(), 'endpoint' => $data['endpoint'], 'endpoint_hash' => $hash,
+            'p256dh' => $data['keys']['p256dh'], 'auth' => $data['keys']['auth'], 'created_at' => $this->now(),
+        ]);
+
+        return $this->ok(true, 201);
+    }
+
+    public function unsubscribe()
+    {
+        $endpoint = (string) ($this->body()['endpoint'] ?? '');
+        $this->db()->table('push_subscriptions')
+            ->where(['endpoint_hash' => hash('sha256', $endpoint), 'user_id' => $this->uid()])->delete();
 
         return $this->ok(true);
     }

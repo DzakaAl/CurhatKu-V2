@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
+import PushToggle from "@/components/nav/PushToggle";
 import { ErrorBox, Skeleton } from "@/components/ui/States";
 import { useLogout, useMe, useUpdateProfile } from "@/lib/api/hooks";
 import { ApiError } from "@/lib/api/client";
@@ -81,6 +82,8 @@ export default function ProfilPage() {
           </Button>
         </div>
       )}
+
+      <PushToggle />
 
       <ul className="flex flex-col divide-y divide-line border-y border-line">
         {links.map((l) => (

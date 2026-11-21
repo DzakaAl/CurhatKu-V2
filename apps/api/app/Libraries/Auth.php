@@ -33,9 +33,18 @@ class Auth
         return self::$user ? (int) self::$user['id'] : null;
     }
 
+    /**
+     * Kunci HMAC 32 byte diturunkan dari `jwt.secret` (firebase/jwt menolak kunci HS256 < 32 byte).
+     * Di produksi secret default/kosong ditolak agar token tidak bisa dipalsukan.
+     */
     private static function secret(): string
     {
-        return (string) env('jwt.secret', 'dev-only');
+        $raw = (string) env('jwt.secret', '');
+        if (ENVIRONMENT === 'production' && ($raw === '' || $raw === 'GANTI_DENGAN_STRING_ACAK' || strlen($raw) < 32)) {
+            throw new \RuntimeException('jwt.secret wajib diisi string acak minimal 32 karakter di produksi.');
+        }
+
+        return hash('sha256', $raw !== '' ? $raw : 'curhatku-dev-only', true);
     }
 
     public static function accessTtl(): int

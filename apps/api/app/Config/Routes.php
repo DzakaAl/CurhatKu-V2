@@ -60,6 +60,9 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function (R
         // M7+
         $r->get('notifications', 'NotificationController::index');
         $r->post('notifications/read', 'NotificationController::readAll');
+        $r->get('push/key', 'NotificationController::pushKey');
+        $r->post('push/subscribe', 'NotificationController::subscribe');
+        $r->post('push/unsubscribe', 'NotificationController::unsubscribe');
 
         // Admin
         $r->group('admin', ['filter' => 'admin'], static function (RouteCollection $r) {

@@ -2,7 +2,7 @@
 
 namespace App\Libraries;
 
-/** Notifikasi in-app. (Web Push VAPID belum diaktifkan — butuh kunci & service worker.) */
+/** Notifikasi in-app + Web Push (bila VAPID dikonfigurasi). */
 class Notify
 {
     public static function send(int $userId, string $type, string $title, ?string $body = null, ?string $link = null): void
@@ -15,5 +15,6 @@ class Notify
             'link'       => $link,
             'created_at' => date('Y-m-d H:i:s'),
         ]);
+        Push::send($userId, $title, $body, $link);
     }
 }

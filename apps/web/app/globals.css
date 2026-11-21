@@ -1,26 +1,28 @@
 @import "tailwindcss";
 
 /* ============================================================
-   CurhatKu — "Sungai waktu"
-   Curhat = alur yang mengalir; tiap hari punya warna emosinya,
-   disambung garis bergradasi. Malam ungu, aksen lavender.
+   CurhatKu — "Teduh"
+   Tempat berteduh untuk bercerita: kertas pasir yang hangat,
+   tinta hijau-hutan, aksen teal yang menenangkan.
+   Judul serif (Fraunces) memberi rasa personal, isi tetap
+   Plus Jakarta Sans agar mudah dibaca di layar kecil.
    ============================================================ */
 
 :root {
-  /* Terang: kertas lavender, tinta malam */
-  --ck-bg: #f5f4fb;
-  --ck-surface: #ffffff;
-  --ck-surface-strong: #eceafa;
-  --ck-ink: #14122b;
-  --ck-ink-muted: #5a5780; /* 6.6:1 di atas bg */
-  --ck-line: #dedbf2;
-  --ck-invert: #4b3fd9; /* aksen utama: tombol, tab aktif */
+  /* Terang: kertas pasir, tinta hutan */
+  --ck-bg: #f7f3ec;
+  --ck-surface: #fffdf9;
+  --ck-surface-strong: #efe7da;
+  --ck-ink: #1c2a26;
+  --ck-ink-muted: #56645e; /* ±5.7:1 di atas bg */
+  --ck-line: #e2d9ca;
+  --ck-invert: #1f5c54; /* aksen utama: tombol, tab aktif */
   --ck-on-invert: #ffffff;
-  --ck-on-invert-muted: #d9d5ff;
-  --ck-nav: #ffffff;
-  --ck-nav-ink: #5a5780;
+  --ck-on-invert-muted: #cfe6df;
+  --ck-nav: #fffdf9;
+  --ck-nav-ink: #56645e;
 
-  /* Warna emosi — selalu di bawah teks gelap #14122B */
+  /* Warna emosi — selalu di bawah teks gelap --color-night */
   --ck-mood-senang: #ffd97d;
   --ck-mood-percaya: #a5dcb5;
   --ck-mood-sedih: #9bb8e8;
@@ -29,26 +31,26 @@
   --ck-mood-jijik: #c5d8a0;
   --ck-mood-terkejut: #ffb3c8;
   --ck-mood-waspada: #ffc79b;
-  --ck-mood-none: #d9d6ee;
+  --ck-mood-none: #e4dccd;
 
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Gelap (identitas utama): malam ungu, aksen lavender */
-    --ck-bg: #14122b;
-    --ck-surface: #221f44;
-    --ck-surface-strong: #2d2957;
-    --ck-ink: #eceafb;
-    --ck-ink-muted: #a5a1c9; /* 7.3:1 di atas bg */
-    --ck-line: #34305e;
-    --ck-invert: #b8b2ff;
-    --ck-on-invert: #14122b;
-    --ck-on-invert-muted: #3b3766;
-    --ck-nav: #221f44;
-    --ck-nav-ink: #a5a1c9;
-    --ck-mood-none: #3a3669;
+    /* Gelap: hutan malam, aksen mint */
+    --ck-bg: #111917;
+    --ck-surface: #1a2421;
+    --ck-surface-strong: #23302c;
+    --ck-ink: #edf0ea;
+    --ck-ink-muted: #a2b0a9; /* ±8:1 di atas bg */
+    --ck-line: #2b3935;
+    --ck-invert: #8fd3c2;
+    --ck-on-invert: #0f1a17;
+    --ck-on-invert-muted: #2e4a43;
+    --ck-nav: #1a2421;
+    --ck-nav-ink: #a2b0a9;
+    --ck-mood-none: #33413c;
     color-scheme: dark;
   }
 }
@@ -68,8 +70,8 @@
   --color-primary: var(--ck-invert);
   --color-nav: var(--ck-nav);
   --color-nav-ink: var(--ck-nav-ink);
-  --color-night: #14122b; /* teks di atas warna emosi, tetap di kedua tema */
-  --color-night-ink: #eceafb;
+  --color-night: #1c2a26; /* teks di atas warna emosi, tetap di kedua tema */
+  --color-night-ink: #edf0ea;
 
   --color-mood-senang: var(--ck-mood-senang);
   --color-mood-percaya: var(--ck-mood-percaya);
@@ -97,26 +99,33 @@
 
   --container-clay: 480px;
 
-  --font-sans: var(--font-schibsted);
+  --font-sans: var(--font-jakarta);
+  --font-display: var(--font-fraunces);
 }
 
 body {
   background: var(--ck-bg);
   color: var(--ck-ink);
-  font-family: var(--font-schibsted), system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-jakarta), system-ui, -apple-system, "Segoe UI", sans-serif;
   line-height: 1.5;
   -webkit-tap-highlight-color: transparent;
 }
 
+h1, h2 {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 100, "opsz" 72;
+}
+
 h1, h2, h3 {
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
   text-wrap: balance;
 }
 
 ::selection {
   background: var(--ck-mood-senang);
-  color: #14122b;
+  color: #1c2a26;
 }
 
 :focus-visible {
